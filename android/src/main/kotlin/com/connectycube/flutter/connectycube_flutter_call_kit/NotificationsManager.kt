@@ -38,7 +38,8 @@ fun cancelCallNotification(context: Context, callId: String) {
 
 fun showCallNotification(
     context: Context, callId: String, callType: Int, callInitiatorId: Int,
-    callInitiatorName: String, callOpponents: ArrayList<Int>, callPhoto: String?, userInfo: String
+    callInitiatorName: String, callOpponents: ArrayList<Int>, callPhoto: String?, userInfo: String,
+    textTitle: String?, textSubtitle: String?, mainColor: String?
 ) {
     Log.d("NotificationsManager", "[showCallNotification]")
     val notificationManager = NotificationManagerCompat.from(context)
@@ -82,6 +83,9 @@ fun showCallNotification(
     callData.putIntegerArrayList(EXTRA_CALL_OPPONENTS, callOpponents)
     callData.putString(EXTRA_CALL_PHOTO, callPhoto)
     callData.putString(EXTRA_CALL_USER_INFO, userInfo)
+    callData.putString("text_title", textTitle)
+    callData.putString("text_subtitle", textSubtitle)
+    callData.putString("main_color", mainColor)
 
     val defaultPhoto = getDefaultPhoto(context)
 
@@ -106,7 +110,10 @@ fun showCallNotification(
         callInitiatorName,
         callOpponents,
         callPhoto,
-        userInfo
+        userInfo,
+        textTitle,
+        textSubtitle,
+        mainColor
     )
 
     // Add action when delete call notification
@@ -121,7 +128,7 @@ fun showCallNotification(
     setNotificationSmallIcon(context, builder, isVideoCall)
 
     // Set notification color accent
-    setNotificationColor(context, builder)
+    setNotificationColor(context, builder, mainColor)
 
     createCallNotificationChannel(notificationManager, ringtone)
 
@@ -281,7 +288,10 @@ fun addCallFullScreenIntent(
     callInitiatorName: String,
     callOpponents: ArrayList<Int>,
     callPhoto: String?,
-    userInfo: String
+    userInfo: String,
+    textTitle: String?,
+    textSubtitle: String?,
+    mainColor: String?
 ) {
     val callFullScreenIntent: Intent = createStartIncomingScreenIntent(
         context,
@@ -291,7 +301,10 @@ fun addCallFullScreenIntent(
         callInitiatorName,
         callOpponents,
         callPhoto,
-        userInfo
+        userInfo,
+        textTitle,
+        textSubtitle,
+        mainColor
     )
     val fullScreenPendingIntent = PendingIntent.getActivity(
         context,
@@ -381,9 +394,9 @@ fun setNotificationLargeIcon(
     notificationBuilder.setLargeIcon(largeIcon)
 }
 
-fun setNotificationColor(context: Context, notificationBuilder: NotificationCompat.Builder) {
+fun setNotificationColor(context: Context, notificationBuilder: NotificationCompat.Builder, mainColor: String?) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val color = getString(context, "color")
+        val color = mainColor ?: getString(context, "color")
 
         if (!TextUtils.isEmpty(color)) {
             notificationBuilder.color = Color.parseColor(color)

@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.Nullable
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -26,7 +27,8 @@ import com.skyfishjy.library.RippleBackground
 
 fun createStartIncomingScreenIntent(
     context: Context, callId: String, callType: Int, callInitiatorId: Int,
-    callInitiatorName: String, opponents: ArrayList<Int>, callPhoto: String?, userInfo: String
+    callInitiatorName: String, opponents: ArrayList<Int>, callPhoto: String?, userInfo: String,
+    textTitle: String?, textSubtitle: String?, mainColor: String?
 ): Intent {
     val intent = Intent(context, IncomingCallActivity::class.java)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -37,6 +39,9 @@ fun createStartIncomingScreenIntent(
     intent.putIntegerArrayListExtra(EXTRA_CALL_OPPONENTS, opponents)
     intent.putExtra(EXTRA_CALL_PHOTO, callPhoto)
     intent.putExtra(EXTRA_CALL_USER_INFO, userInfo)
+    intent.putExtra("text_title", textTitle)
+    intent.putExtra("text_subtitle", textSubtitle)
+    intent.putExtra("main_color", mainColor)
     return intent
 }
 
@@ -51,6 +56,9 @@ class IncomingCallActivity : Activity() {
     private var callOpponents: ArrayList<Int>? = ArrayList()
     private var callPhoto: String? = null
     private var callUserInfo: String? = null
+    private var textTitle: String? = null
+    private var textSubtitle: String? = null
+    private var mainColor: String? = null
 
 
     override fun onCreate(@Nullable savedInstanceState: Bundle?) {
@@ -157,19 +165,32 @@ class IncomingCallActivity : Activity() {
         callOpponents = intent.getIntegerArrayListExtra(EXTRA_CALL_OPPONENTS)
         callPhoto = intent.getStringExtra(EXTRA_CALL_PHOTO)
         callUserInfo = intent.getStringExtra(EXTRA_CALL_USER_INFO)
+        textTitle = intent.getStringExtra("text_title")
+        textSubtitle = intent.getStringExtra("text_subtitle")
+        mainColor = intent.getStringExtra("main_color")
     }
 
     private fun initUi() {
         val callTitleTxt: TextView =
-            findViewById(resources.getIdentifier("user_name_txt", "id", packageName))
+            findViewById<TextView>(resources.getIdentifier("user_name_txt", "id", packageName))
         callTitleTxt.text = callInitiatorName
         val callSubTitleTxt: TextView =
-            findViewById(resources.getIdentifier("call_type_txt", "id", packageName))
-        callSubTitleTxt.text =
-            String.format(CALL_TYPE_PLACEHOLDER, if (callType == 1) "Video" else "Audio")
+            findViewById<TextView>(resources.getIdentifier("call_type_txt", "id", packageName))
+        callSubTitleTxt.text = textSubtitle ?: String.format(CALL_TYPE_PLACEHOLDER, if (callType == 1) "Video" else "Audio")
+
+        val statusTxt: TextView = findViewById<TextView>(resources.getIdentifier("delivery_status_txt", "id", packageName))
+        statusTxt.text = textTitle ?: "Incoming Call"
+
+        val bgOverlay: View? = findViewById<View>(resources.getIdentifier("background_overlay", "id", packageName))
+        if (!TextUtils.isEmpty(mainColor)) {
+            bgOverlay?.setBackgroundColor(android.graphics.Color.parseColor(mainColor))
+        }
+
+        val footerTxt: TextView? = findViewById<TextView>(resources.getIdentifier("footer_text", "id", packageName))
+        footerTxt?.text = "Aarvy Office"
 
         val callAcceptButton: ImageView =
-            findViewById(resources.getIdentifier("start_call_btn", "id", packageName))
+            findViewById<ImageView>(resources.getIdentifier("start_call_btn", "id", packageName))
         val acceptButtonIconName = if (callType == 1) "ic_video_call_start" else "ic_call_start"
         callAcceptButton.setImageResource(
             resources.getIdentifier(
@@ -180,7 +201,7 @@ class IncomingCallActivity : Activity() {
         )
 
         val avatarImg: ShapeableImageView =
-            findViewById(resources.getIdentifier("avatar_img", "id", packageName))
+            findViewById<ShapeableImageView>(resources.getIdentifier("avatar_img", "id", packageName))
 
         val defaultPhotoResId = getPhotoPlaceholderResId(applicationContext)
 
@@ -195,11 +216,11 @@ class IncomingCallActivity : Activity() {
         }
 
         val acceptButtonAnimation: RippleBackground =
-            findViewById(resources.getIdentifier("accept_button_animation", "id", packageName))
+            findViewById<RippleBackground>(resources.getIdentifier("accept_button_animation", "id", packageName))
         acceptButtonAnimation.startRippleAnimation()
 
         val rejectButtonAnimation: RippleBackground =
-            findViewById(resources.getIdentifier("reject_button_animation", "id", packageName))
+            findViewById<RippleBackground>(resources.getIdentifier("reject_button_animation", "id", packageName))
         rejectButtonAnimation.startRippleAnimation()
     }
 

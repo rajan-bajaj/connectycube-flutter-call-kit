@@ -154,6 +154,9 @@ class ConnectycubeFlutterCallKitPlugin : FlutterPlugin, MethodCallHandler,
                         .map { it.toInt() })
                     val callPhoto = arguments["photo_url"] as String?
                     val userInfo = arguments["user_info"] as String
+                    val textTitle = arguments["text_title"] as String?
+                    val textSubtitle = arguments["text_subtitle"] as String?
+                    val mainColor = arguments["main_color"] as String?
 
                     showCallNotification(
                         applicationContext!!,
@@ -163,7 +166,10 @@ class ConnectycubeFlutterCallKitPlugin : FlutterPlugin, MethodCallHandler,
                         callInitiatorName,
                         callOpponents,
                         callPhoto,
-                        userInfo
+                        userInfo,
+                        textTitle,
+                        textSubtitle,
+                        mainColor
                     )
 
                     saveCallState(applicationContext, callId, CALL_STATE_PENDING)
@@ -382,7 +388,8 @@ class ConnectycubeFlutterCallKitPlugin : FlutterPlugin, MethodCallHandler,
 
 fun notifyAboutIncomingCall(
     context: Context, callId: String, callType: Int, callInitiatorId: Int,
-    callInitiatorName: String, callOpponents: ArrayList<Int>, callPhoto: String?, userInfo: String
+    callInitiatorName: String, callOpponents: ArrayList<Int>, callPhoto: String?, userInfo: String,
+    textTitle: String?, textSubtitle: String?, mainColor: String?
 ) {
     val intent = Intent(ACTION_CALL_INCOMING)
         .putExtra(EXTRA_CALL_ID, callId)
@@ -392,6 +399,9 @@ fun notifyAboutIncomingCall(
         .putExtra(EXTRA_CALL_OPPONENTS, callOpponents)
         .putExtra(EXTRA_CALL_PHOTO, callPhoto)
         .putExtra(EXTRA_CALL_USER_INFO, userInfo)
+        .putExtra("text_title", textTitle)
+        .putExtra("text_subtitle", textSubtitle)
+        .putExtra("main_color", mainColor)
 
     if (isApplicationForeground(context)) {
         LocalBroadcastManager.getInstance(context)

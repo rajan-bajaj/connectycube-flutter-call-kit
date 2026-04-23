@@ -84,6 +84,10 @@ class ConnectycubeFCMReceiver : BroadcastReceiver() {
             return
         }
 
+        val textTitle = data["text_title"]
+        val textSubtitle = data["text_subtitle"]
+        val mainColor = data["main_color"]
+
         notifyAboutIncomingCall(
             applicationContext,
             callId,
@@ -92,7 +96,10 @@ class ConnectycubeFCMReceiver : BroadcastReceiver() {
             callInitiatorName,
             callOpponents,
             callPhoto,
-            userInfo
+            userInfo,
+            textTitle,
+            textSubtitle,
+            mainColor
         )
             
         showCallNotification(
@@ -103,7 +110,10 @@ class ConnectycubeFCMReceiver : BroadcastReceiver() {
             callInitiatorName,
             callOpponents,
             callPhoto,
-            userInfo
+            userInfo,
+            textTitle,
+            textSubtitle,
+            mainColor
         )
 
         saveCallState(applicationContext, callId, CALL_STATE_PENDING)
